@@ -1,0 +1,626 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DD0000000000000000000101 /* CredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000101 /* CredentialStore.swift */; };
+		DD0000000000000000000102 /* DashboardSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000102 /* DashboardSnapshot.swift */; };
+		DD0000000000000000000103 /* Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000103 /* Formatting.swift */; };
+		DD0000000000000000000104 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000104 /* Models.swift */; };
+		DD0000000000000000000105 /* RouterClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000105 /* RouterClient.swift */; };
+		DD0000000000000000000106 /* RouterConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000106 /* RouterConfig.swift */; };
+		DD0000000000000000000107 /* RouterValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000107 /* RouterValue.swift */; };
+		DD0000000000000000000108 /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000108 /* SharedStore.swift */; };
+		DD0000000000000000000109 /* SnapshotBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000109 /* SnapshotBuilder.swift */; };
+		DD0000000000000000000110 /* TrafficRate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000110 /* TrafficRate.swift */; };
+		DD0000000000000000000201 /* DashboardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000201 /* DashboardModel.swift */; };
+		DD0000000000000000000202 /* MikroTikDashboardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000202 /* MikroTikDashboardApp.swift */; };
+		DD0000000000000000000203 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000203 /* Theme.swift */; };
+		DD0000000000000000000204 /* TrafficHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000204 /* TrafficHistory.swift */; };
+		DD0000000000000000000211 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000211 /* DashboardView.swift */; };
+		DD0000000000000000000212 /* InterfaceCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000212 /* InterfaceCardView.swift */; };
+		DD0000000000000000000213 /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000213 /* MenuBarContentView.swift */; };
+		DD0000000000000000000214 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000214 /* SettingsView.swift */; };
+		DD0000000000000000000215 /* SparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000215 /* SparklineView.swift */; };
+		DD0000000000000000000216 /* StatusHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000216 /* StatusHeaderView.swift */; };
+		DD0000000000000000000301 /* MikroTikWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000301 /* MikroTikWidgetBundle.swift */; };
+		DD0000000000000000000302 /* TrafficTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000302 /* TrafficTimelineProvider.swift */; };
+		DD0000000000000000000303 /* TrafficWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000303 /* TrafficWidgetViews.swift */; };
+		DD0000000000000000000501 /* libMikroTikKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000003 /* libMikroTikKit.a */; };
+		DD0000000000000000000502 /* libMikroTikKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000003 /* libMikroTikKit.a */; };
+		DD0000000000000000000503 /* MikroTikWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000002 /* MikroTikWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2200000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5500000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FF0000000000000000000002;
+			remoteInfo = MikroTikWidget;
+		};
+		2200000000000000000002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5500000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FF0000000000000000000003;
+			remoteInfo = MikroTikKit;
+		};
+		2200000000000000000003 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5500000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FF0000000000000000000003;
+			remoteInfo = MikroTikKit;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EE0000000000000000000204 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DD0000000000000000000503 /* MikroTikWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		AA0000000000000000000001 /* MikroTikDashboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MikroTikDashboard.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000002 /* MikroTikWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MikroTikWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000003 /* libMikroTikKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMikroTikKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC0000000000000000000101 /* CredentialStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialStore.swift; sourceTree = "<group>"; };
+		CC0000000000000000000102 /* DashboardSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardSnapshot.swift; sourceTree = "<group>"; };
+		CC0000000000000000000103 /* Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatting.swift; sourceTree = "<group>"; };
+		CC0000000000000000000104 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		CC0000000000000000000105 /* RouterClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterClient.swift; sourceTree = "<group>"; };
+		CC0000000000000000000106 /* RouterConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterConfig.swift; sourceTree = "<group>"; };
+		CC0000000000000000000107 /* RouterValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterValue.swift; sourceTree = "<group>"; };
+		CC0000000000000000000108 /* SharedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedStore.swift; sourceTree = "<group>"; };
+		CC0000000000000000000109 /* SnapshotBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotBuilder.swift; sourceTree = "<group>"; };
+		CC0000000000000000000110 /* TrafficRate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrafficRate.swift; sourceTree = "<group>"; };
+		CC0000000000000000000201 /* DashboardModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardModel.swift; sourceTree = "<group>"; };
+		CC0000000000000000000202 /* MikroTikDashboardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MikroTikDashboardApp.swift; sourceTree = "<group>"; };
+		CC0000000000000000000203 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		CC0000000000000000000204 /* TrafficHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrafficHistory.swift; sourceTree = "<group>"; };
+		CC0000000000000000000211 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		CC0000000000000000000212 /* InterfaceCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceCardView.swift; sourceTree = "<group>"; };
+		CC0000000000000000000213 /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
+		CC0000000000000000000214 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		CC0000000000000000000215 /* SparklineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparklineView.swift; sourceTree = "<group>"; };
+		CC0000000000000000000216 /* StatusHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusHeaderView.swift; sourceTree = "<group>"; };
+		CC0000000000000000000301 /* MikroTikWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MikroTikWidgetBundle.swift; sourceTree = "<group>"; };
+		CC0000000000000000000302 /* TrafficTimelineProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrafficTimelineProvider.swift; sourceTree = "<group>"; };
+		CC0000000000000000000303 /* TrafficWidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrafficWidgetViews.swift; sourceTree = "<group>"; };
+		CC0000000000000000000401 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CC0000000000000000000402 /* MikroTikDashboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MikroTikDashboard.entitlements; sourceTree = "<group>"; };
+		CC0000000000000000000403 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CC0000000000000000000404 /* MikroTikWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MikroTikWidget.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EE0000000000000000000202 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DD0000000000000000000501 /* libMikroTikKit.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE0000000000000000000302 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DD0000000000000000000502 /* libMikroTikKit.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BB0000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				BB0000000000000000000002 /* Sources */,
+				BB0000000000000000000007 /* App */,
+				BB0000000000000000000008 /* Widget */,
+				BB0000000000000000000009 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000002 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				BB0000000000000000000003 /* MikroTikKit */,
+				BB0000000000000000000004 /* MikroTikDashboard */,
+				BB0000000000000000000006 /* MikroTikWidget */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000003 /* MikroTikKit */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000000000000000000101 /* CredentialStore.swift */,
+				CC0000000000000000000102 /* DashboardSnapshot.swift */,
+				CC0000000000000000000103 /* Formatting.swift */,
+				CC0000000000000000000104 /* Models.swift */,
+				CC0000000000000000000105 /* RouterClient.swift */,
+				CC0000000000000000000106 /* RouterConfig.swift */,
+				CC0000000000000000000107 /* RouterValue.swift */,
+				CC0000000000000000000108 /* SharedStore.swift */,
+				CC0000000000000000000109 /* SnapshotBuilder.swift */,
+				CC0000000000000000000110 /* TrafficRate.swift */,
+			);
+			path = MikroTikKit;
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000004 /* MikroTikDashboard */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000000000000000000201 /* DashboardModel.swift */,
+				CC0000000000000000000202 /* MikroTikDashboardApp.swift */,
+				CC0000000000000000000203 /* Theme.swift */,
+				CC0000000000000000000204 /* TrafficHistory.swift */,
+				BB0000000000000000000005 /* Views */,
+			);
+			path = MikroTikDashboard;
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000005 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000000000000000000211 /* DashboardView.swift */,
+				CC0000000000000000000212 /* InterfaceCardView.swift */,
+				CC0000000000000000000213 /* MenuBarContentView.swift */,
+				CC0000000000000000000214 /* SettingsView.swift */,
+				CC0000000000000000000215 /* SparklineView.swift */,
+				CC0000000000000000000216 /* StatusHeaderView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000006 /* MikroTikWidget */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000000000000000000301 /* MikroTikWidgetBundle.swift */,
+				CC0000000000000000000302 /* TrafficTimelineProvider.swift */,
+				CC0000000000000000000303 /* TrafficWidgetViews.swift */,
+			);
+			path = MikroTikWidget;
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000007 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000000000000000000401 /* Info.plist */,
+				CC0000000000000000000402 /* MikroTikDashboard.entitlements */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000008 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000000000000000000403 /* Info.plist */,
+				CC0000000000000000000404 /* MikroTikWidget.entitlements */,
+			);
+			path = Widget;
+			sourceTree = "<group>";
+		};
+		BB0000000000000000000009 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000001 /* MikroTikDashboard.app */,
+				AA0000000000000000000002 /* MikroTikWidget.appex */,
+				AA0000000000000000000003 /* libMikroTikKit.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FF0000000000000000000001 /* MikroTikDashboard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4400000000000000000002 /* Build configuration list for PBXNativeTarget "MikroTikDashboard" */;
+			buildPhases = (
+				EE0000000000000000000201 /* Sources */,
+				EE0000000000000000000202 /* Frameworks */,
+				EE0000000000000000000203 /* Resources */,
+				EE0000000000000000000204 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1100000000000000000002 /* PBXTargetDependency */,
+				1100000000000000000001 /* PBXTargetDependency */,
+			);
+			name = MikroTikDashboard;
+			productName = MikroTikDashboard;
+			productReference = AA0000000000000000000001 /* MikroTikDashboard.app */;
+			productType = "com.apple.product-type.application";
+		};
+		FF0000000000000000000002 /* MikroTikWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4400000000000000000003 /* Build configuration list for PBXNativeTarget "MikroTikWidget" */;
+			buildPhases = (
+				EE0000000000000000000301 /* Sources */,
+				EE0000000000000000000302 /* Frameworks */,
+				EE0000000000000000000303 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1100000000000000000003 /* PBXTargetDependency */,
+			);
+			name = MikroTikWidget;
+			productName = MikroTikWidget;
+			productReference = AA0000000000000000000002 /* MikroTikWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		FF0000000000000000000003 /* MikroTikKit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4400000000000000000004 /* Build configuration list for PBXNativeTarget "MikroTikKit" */;
+			buildPhases = (
+				EE0000000000000000000101 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MikroTikKit;
+			productName = MikroTikKit;
+			productReference = AA0000000000000000000003 /* libMikroTikKit.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5500000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					FF0000000000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					FF0000000000000000000002 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					FF0000000000000000000003 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 4400000000000000000001 /* Build configuration list for PBXProject "MikroTikDashboard" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BB0000000000000000000001;
+			productRefGroup = BB0000000000000000000009 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FF0000000000000000000001 /* MikroTikDashboard */,
+				FF0000000000000000000002 /* MikroTikWidget */,
+				FF0000000000000000000003 /* MikroTikKit */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EE0000000000000000000203 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE0000000000000000000303 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EE0000000000000000000101 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DD0000000000000000000101 /* CredentialStore.swift in Sources */,
+				DD0000000000000000000102 /* DashboardSnapshot.swift in Sources */,
+				DD0000000000000000000103 /* Formatting.swift in Sources */,
+				DD0000000000000000000104 /* Models.swift in Sources */,
+				DD0000000000000000000105 /* RouterClient.swift in Sources */,
+				DD0000000000000000000106 /* RouterConfig.swift in Sources */,
+				DD0000000000000000000107 /* RouterValue.swift in Sources */,
+				DD0000000000000000000108 /* SharedStore.swift in Sources */,
+				DD0000000000000000000109 /* SnapshotBuilder.swift in Sources */,
+				DD0000000000000000000110 /* TrafficRate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE0000000000000000000201 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DD0000000000000000000201 /* DashboardModel.swift in Sources */,
+				DD0000000000000000000202 /* MikroTikDashboardApp.swift in Sources */,
+				DD0000000000000000000203 /* Theme.swift in Sources */,
+				DD0000000000000000000204 /* TrafficHistory.swift in Sources */,
+				DD0000000000000000000211 /* DashboardView.swift in Sources */,
+				DD0000000000000000000212 /* InterfaceCardView.swift in Sources */,
+				DD0000000000000000000213 /* MenuBarContentView.swift in Sources */,
+				DD0000000000000000000214 /* SettingsView.swift in Sources */,
+				DD0000000000000000000215 /* SparklineView.swift in Sources */,
+				DD0000000000000000000216 /* StatusHeaderView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE0000000000000000000301 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DD0000000000000000000301 /* MikroTikWidgetBundle.swift in Sources */,
+				DD0000000000000000000302 /* TrafficTimelineProvider.swift in Sources */,
+				DD0000000000000000000303 /* TrafficWidgetViews.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1100000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FF0000000000000000000002 /* MikroTikWidget */;
+			targetProxy = 2200000000000000000001 /* PBXContainerItemProxy */;
+		};
+		1100000000000000000002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FF0000000000000000000003 /* MikroTikKit */;
+			targetProxy = 2200000000000000000002 /* PBXContainerItemProxy */;
+		};
+		1100000000000000000003 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FF0000000000000000000003 /* MikroTikKit */;
+			targetProxy = 2200000000000000000003 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		3300000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		3300000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		3300000000000000000011 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = App/MikroTikDashboard.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.macosmikrotikwidget;
+				PRODUCT_NAME = MikroTikDashboard;
+				SWIFT_INCLUDE_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+				);
+			};
+			name = Debug;
+		};
+		3300000000000000000012 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = App/MikroTikDashboard.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.macosmikrotikwidget;
+				PRODUCT_NAME = MikroTikDashboard;
+				SWIFT_INCLUDE_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+				);
+			};
+			name = Release;
+		};
+		3300000000000000000021 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Widget/MikroTikWidget.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Widget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.macosmikrotikwidget.widget;
+				PRODUCT_NAME = MikroTikWidget;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG MIKROTIK_WIDGET_EXTENSION";
+				SWIFT_INCLUDE_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+				);
+			};
+			name = Debug;
+		};
+		3300000000000000000022 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Widget/MikroTikWidget.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Widget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.macosmikrotikwidget.widget;
+				PRODUCT_NAME = MikroTikWidget;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = MIKROTIK_WIDGET_EXTENSION;
+				SWIFT_INCLUDE_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+				);
+			};
+			name = Release;
+		};
+		3300000000000000000031 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				EXECUTABLE_PREFIX = lib;
+				MACH_O_TYPE = staticlib;
+				PRODUCT_NAME = MikroTikKit;
+				SKIP_INSTALL = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+			};
+			name = Debug;
+		};
+		3300000000000000000032 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				EXECUTABLE_PREFIX = lib;
+				MACH_O_TYPE = staticlib;
+				PRODUCT_NAME = MikroTikKit;
+				SKIP_INSTALL = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4400000000000000000001 /* Build configuration list for PBXProject "MikroTikDashboard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3300000000000000000001 /* Debug */,
+				3300000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4400000000000000000002 /* Build configuration list for PBXNativeTarget "MikroTikDashboard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3300000000000000000011 /* Debug */,
+				3300000000000000000012 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4400000000000000000003 /* Build configuration list for PBXNativeTarget "MikroTikWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3300000000000000000021 /* Debug */,
+				3300000000000000000022 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4400000000000000000004 /* Build configuration list for PBXNativeTarget "MikroTikKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3300000000000000000031 /* Debug */,
+				3300000000000000000032 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5500000000000000000001 /* Project object */;
+}
