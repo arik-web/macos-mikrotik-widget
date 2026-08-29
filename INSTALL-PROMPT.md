@@ -54,7 +54,9 @@ Work through this in order and do not skip the verification steps.
 5. FIRST RUN
    - `open /Applications/MikroTikDashboard.app`
    - Tell me to enter the router address and login in Settings (⌘,). There is
-     no default password in this app, so it will not connect until I do.
+     no default password in this app, so it will not connect until I do. The
+     password goes into my login Keychain, never into a file or this repo.
+     macOS will ask once for Keychain access — that is expected.
 
 6. VERIFY IT ACTUALLY WORKS — do not report success before this passes
    - Confirm the app wrote a snapshot:

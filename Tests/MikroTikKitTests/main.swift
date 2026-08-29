@@ -8,5 +8,6 @@ runModelParsingTests()
 runTrafficRateTests()
 runFormattingTests()
 runSnapshotBuilderTests()
+runCredentialStoreTests()
 
 finish()

@@ -95,16 +95,19 @@ Change those to your interface names. A name RouterOS shows in
 
 ### Credentials
 
-Resolution order is **environment → on-disk store → empty**:
+The password lives in the **login Keychain**. Nothing is written to disk in
+cleartext, and nothing about your router belongs in this repo.
+
+Resolution order is **environment → Keychain → empty**:
 
 ```bash
 export MIKROTIK_USERNAME=dashboard
 export MIKROTIK_PASSWORD='...'
 ```
 
-Otherwise the login you type in Settings is written to `credentials.json` in
-the app group container with `0600` permissions, so the widget extension can
-authenticate while the app is closed.
+Otherwise type the login once in Settings (⌘,) and it is stored under the
+service `io.github.macosmikrotikwidget.router`. A `credentials.json` left by an
+older build is imported on first launch and then deleted.
 
 Make a dedicated RouterOS user rather than reusing `admin`. Read-only is enough
 for everything except the power button:
@@ -115,6 +118,21 @@ for everything except the power button:
 ```
 
 Add `write` to that policy if you want the enable/disable button to work.
+
+#### The widget and the Keychain
+
+The widget extension polls the router itself when the app is closed and the
+shared snapshot has gone stale. Reading the same Keychain item from both
+processes needs a `keychain-access-groups` entitlement, which requires a real
+Apple Developer Team ID — an ad-hoc build has none.
+
+- **Ad-hoc build (what `build-app.sh` produces):** the app reads the Keychain,
+  the widget does not. The widget shows the snapshot the app writes every few
+  seconds, and marks it unreachable if a refresh lands while the app is closed.
+- **Signed build with a team:** set `accessGroup` in `CredentialStore.swift` to
+  `<TeamID>.io.github.macosmikrotikwidget`, add the matching
+  `keychain-access-groups` entitlement to both targets, and the widget
+  authenticates on its own.
 
 ## Keyboard
 
@@ -150,17 +168,16 @@ computation are all covered.
 swift run MikroTikKitTests
 ```
 
-65 tests, 220 assertions, no XCTest dependency — the suite is a plain
+71 tests, 233 assertions, no XCTest dependency — the suite is a plain
 executable so it runs on a Command Line Tools toolchain with no Xcode.
 
 ## Caveats
 
 - **The build is ad-hoc signed.** Gatekeeper will complain on first launch;
   right-click → Open, or sign it with your own identity.
-- **Credentials sit in a file, not the Keychain.** An unsigned, frequently
-  rebuilt binary triggers a Keychain prompt on every launch, which is worse.
-  Swap `CredentialStore` for a Keychain-backed one before shipping a signed
-  build.
+- **The Keychain prompts after a rebuild.** Every ad-hoc build has a different
+  signature, so macOS treats it as a new app and asks once for access to the
+  stored login. Click Always Allow, or sign the build with a stable identity.
 - **HTTP by default.** Turn on HTTPS in Settings if the router's `www-ssl`
   service is configured; on a LAN over plain HTTP the basic-auth header is
   base64, not encryption.
