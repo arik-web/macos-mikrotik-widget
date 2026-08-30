@@ -218,11 +218,7 @@ private struct CompactInterfaceView: View {
 
             Spacer(minLength: 4)
 
-            Text(interface.ipAddress ?? "—")
-                .font(.system(size: 9, design: .monospaced))
-                .foregroundStyle(Theme.textSecondary)
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("\(interface.name), \(Theme.statusLabel(for: interface))")
+            AddressLabel(interface: interface)
 
             powerButton
         }

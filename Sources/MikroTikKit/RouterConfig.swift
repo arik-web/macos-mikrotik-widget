@@ -17,6 +17,13 @@ public struct RouterConfig: Codable, Equatable {
     /// When false, unconfigured interfaces only appear if they carry an IP,
     /// which hides bridge member ports and empty SFP cages.
     public var showAllInterfaces: Bool
+    /// Echo service the router fetches to learn each uplink's public address.
+    /// Empty disables the lookup entirely — it is the only part of this app
+    /// that talks to a third party.
+    public var publicIPEchoURL: String
+    /// Seconds between public-address lookups. Far slower than the counter
+    /// poll: the address rarely changes and each check leaves the network.
+    public var publicIPInterval: TimeInterval
 
     public init(
         host: String = "192.168.88.1",
@@ -27,7 +34,9 @@ public struct RouterConfig: Codable, Equatable {
         pingTarget: String = "8.8.8.8",
         wanInterfaceNames: [String] = ["WAN1", "WAN2"],
         lanInterfaceNames: [String] = ["bridge1"],
-        showAllInterfaces: Bool = false
+        showAllInterfaces: Bool = false,
+        publicIPEchoURL: String = "http://ifconfig.me/ip",
+        publicIPInterval: TimeInterval = 300
     ) {
         self.host = host
         self.useTLS = useTLS
@@ -38,6 +47,8 @@ public struct RouterConfig: Codable, Equatable {
         self.wanInterfaceNames = wanInterfaceNames
         self.lanInterfaceNames = lanInterfaceNames
         self.showAllInterfaces = showAllInterfaces
+        self.publicIPEchoURL = publicIPEchoURL
+        self.publicIPInterval = publicIPInterval
     }
 
     public static let `default` = RouterConfig()

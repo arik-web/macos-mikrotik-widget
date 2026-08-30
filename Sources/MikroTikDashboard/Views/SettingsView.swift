@@ -15,6 +15,8 @@ struct SettingsView: View {
     @State private var lanNames = ""
     @State private var useTLS = false
     @State private var showAllInterfaces = false
+    @State private var publicIPEchoURL = ""
+    @State private var publicIPInterval = 300.0
     @State private var didLoad = false
 
     var body: some View {
@@ -40,6 +42,35 @@ struct SettingsView: View {
                         .frame(width: 32, alignment: .trailing)
                 }
                 TextField("Ping target", text: $pingTarget)
+            }
+
+            Section("Public address") {
+                Picker("Show", selection: Binding(
+                    get: { model.addressMode },
+                    set: { model.addressMode = $0 }
+                )) {
+                    ForEach(AddressMode.allCases, id: \.self) { mode in
+                        Text("\(mode.label) address").tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                TextField("Echo service", text: $publicIPEchoURL,
+                          prompt: Text("http://ifconfig.me/ip"))
+
+                HStack {
+                    Slider(value: $publicIPInterval, in: 60...3600, step: 60)
+                    Text("\(Int(publicIPInterval / 60))m")
+                        .monospacedDigit()
+                        .frame(width: 32, alignment: .trailing)
+                }
+
+                Text("The router fetches this URL once per interval, once per uplink, "
+                     + "to learn the address your ISP presents. It is the only request "
+                     + "this app makes outside your network — leave it blank to switch "
+                     + "the lookup off.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section("Interfaces") {
@@ -78,6 +109,8 @@ struct SettingsView: View {
         wanNames = config.wanInterfaceNames.joined(separator: ", ")
         lanNames = config.lanInterfaceNames.joined(separator: ", ")
         showAllInterfaces = config.showAllInterfaces
+        publicIPEchoURL = config.publicIPEchoURL
+        publicIPInterval = config.publicIPInterval
     }
 
     private func save() {
@@ -90,6 +123,8 @@ struct SettingsView: View {
         config.wanInterfaceNames = Self.split(wanNames)
         config.lanInterfaceNames = Self.split(lanNames)
         config.showAllInterfaces = showAllInterfaces
+        config.publicIPEchoURL = publicIPEchoURL.trimmingCharacters(in: .whitespaces)
+        config.publicIPInterval = publicIPInterval
 
         model.applySettings(
             config: config,

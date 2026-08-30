@@ -61,9 +61,7 @@ struct InterfaceCardView: View {
                     }
                 }
 
-                Text(interface.ipAddress ?? "no address")
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundStyle(Theme.textSecondary)
+                AddressLabel(interface: interface, fontSize: 11)
             }
 
             Spacer(minLength: 4)

@@ -97,6 +97,41 @@ public actor RouterClient {
         )
     }
 
+    /// Resolves the public address the ISP presents for one uplink, by asking
+    /// the router to fetch an echo service with that interface's own address as
+    /// the source.
+    ///
+    /// `srcAddress` only fixes the source, not the egress: the router still
+    /// routes by destination, so on a policy-routed setup an output-chain
+    /// `mark-routing` rule keyed on that source address is what actually sends
+    /// the request out of the intended link. Without one, every uplink reports
+    /// whichever public address the default route happens to use. See
+    /// `docs/public-ip.md`.
+    public func publicAddress(
+        sourceAddress: String,
+        echoURL: String,
+        timeout: TimeInterval = 15
+    ) async throws -> String? {
+        let records = try await post(
+            "tool/fetch",
+            body: [
+                "url": echoURL,
+                "mode": echoURL.hasPrefix("https") ? "https" : "http",
+                "src-address": sourceAddress,
+                "output": "user",
+                "as-value": "true",
+            ],
+            timeout: timeout
+        )
+        // The call streams progress rows; the finished one carries the body.
+        for record in records.reversed() {
+            guard let data = record["data"]?.stringValue else { continue }
+            let trimmed = data.trimmingCharacters(in: .whitespacesAndNewlines)
+            if IPv4.parse(trimmed) != nil { return trimmed }
+        }
+        return nil
+    }
+
     /// Fetches the three collections a dashboard refresh needs in parallel.
     public func fetchState() async throws -> RouterState {
         async let interfaces = interfaces()

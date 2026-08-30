@@ -39,6 +39,7 @@ public enum SnapshotBuilder {
         state: RouterState,
         rates: [String: TrafficRate],
         pings: [String: PingOutcome],
+        publicAddresses: [String: String] = [:],
         capturedAt: Date
     ) -> DashboardSnapshot {
         let knownNames = Set(state.interfaces.map(\.name))
@@ -58,6 +59,7 @@ public enum SnapshotBuilder {
                 return InterfaceSnapshot(
                     name: interface.name,
                     ipAddress: primaryAddress(for: interface.name, in: state.addresses),
+                    publicIPAddress: publicAddresses[interface.name],
                     isRunning: interface.isRunning,
                     isDisabled: interface.isDisabled,
                     rxBytes: interface.rxBytes,

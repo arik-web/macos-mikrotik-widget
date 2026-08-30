@@ -18,6 +18,8 @@ public struct InterfaceSnapshot: Codable, Equatable, Identifiable {
 
     public let name: String
     public let ipAddress: String?
+    /// Public address the ISP presents for this uplink, when known.
+    public let publicIPAddress: String?
     public let isRunning: Bool
     public let isDisabled: Bool
     public let rxBytes: UInt64
@@ -33,6 +35,7 @@ public struct InterfaceSnapshot: Codable, Equatable, Identifiable {
     public init(
         name: String,
         ipAddress: String?,
+        publicIPAddress: String? = nil,
         isRunning: Bool,
         isDisabled: Bool,
         rxBytes: UInt64,
@@ -46,6 +49,7 @@ public struct InterfaceSnapshot: Codable, Equatable, Identifiable {
     ) {
         self.name = name
         self.ipAddress = ipAddress
+        self.publicIPAddress = publicIPAddress
         self.isRunning = isRunning
         self.isDisabled = isDisabled
         self.rxBytes = rxBytes
@@ -65,6 +69,7 @@ public struct InterfaceSnapshot: Codable, Equatable, Identifiable {
         InterfaceSnapshot(
             name: name,
             ipAddress: ipAddress,
+            publicIPAddress: publicIPAddress,
             isRunning: isRunning,
             isDisabled: isDisabled,
             rxBytes: rxBytes,
@@ -75,6 +80,28 @@ public struct InterfaceSnapshot: Codable, Equatable, Identifiable {
             isActiveGateway: isActiveGateway,
             pingStatus: outcome.status,
             pingLatency: outcome.averageLatency
+        )
+    }
+
+    /// Copy carrying a freshly resolved public address. A nil argument keeps
+    /// the previous value: a lookup that failed this round should not blank a
+    /// field the operator may be reading.
+    public func applyingPublicAddress(_ address: String?) -> InterfaceSnapshot {
+        guard let address else { return self }
+        return InterfaceSnapshot(
+            name: name,
+            ipAddress: ipAddress,
+            publicIPAddress: address,
+            isRunning: isRunning,
+            isDisabled: isDisabled,
+            rxBytes: rxBytes,
+            txBytes: txBytes,
+            rxBitsPerSecond: rxBitsPerSecond,
+            txBitsPerSecond: txBitsPerSecond,
+            role: role,
+            isActiveGateway: isActiveGateway,
+            pingStatus: pingStatus,
+            pingLatency: pingLatency
         )
     }
 
@@ -175,6 +202,19 @@ public struct DashboardSnapshot: Codable, Equatable {
 
     public func isStale(now: Date = Date(), tolerance: TimeInterval = 600) -> Bool {
         now.timeIntervalSince(capturedAt) > tolerance
+    }
+
+    /// Returns a copy with public addresses merged in, leaving every other
+    /// field untouched.
+    public func applyingPublicAddresses(_ addresses: [String: String]) -> DashboardSnapshot {
+        DashboardSnapshot(
+            capturedAt: capturedAt,
+            routerHost: routerHost,
+            isReachable: isReachable,
+            errorMessage: errorMessage,
+            interfaces: interfaces.map { $0.applyingPublicAddress(addresses[$0.name]) },
+            activeWANs: activeWANs
+        )
     }
 
     /// Sample data for widget galleries and SwiftUI previews.

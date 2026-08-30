@@ -10,12 +10,12 @@ Built for dual-WAN setups, works fine with one.
 +------------------------------------------+
 | * 192.168.88.1              [*] [ ] [x]  |
 +------------------------------------------+
-| * WAN1          ACTIVE    192.168.100.2  |
+| * WAN1          ACTIVE     203.0.113.7  |
 |   v 48.5 Mbps    ^ 6.2 Mbps         (!)  |
 |   RX 812 GB . TX 94.5 GB                 |
 |   Test   ok 12 ms                        |
 +------------------------------------------+
-| * WAN2                  192.168.100.131  |
+| * WAN2                    198.51.100.4  |
 |   v 1.1 Mbps     ^ 380 kbps         (!)  |
 |   RX 233 GB . TX 21.2 GB                 |
 |   Test   ok 28 ms                        |
@@ -28,6 +28,10 @@ Built for dual-WAN setups, works fine with one.
 
 - **Live throughput per interface**, polled every 2 seconds off the RouterOS
   REST API and turned into a real rate by differencing the byte counters.
+- **The public address each uplink presents**, shown by default in place of the
+  private one. Click to copy, right-click to switch to the local address. See
+  [docs/public-ip.md](docs/public-ip.md) — on a router behind ISP NAT this needs
+  one output-chain rule per uplink, or every link reports the same address.
 - **Active-gateway detection.** Reads the routing table and marks the interface
   actually carrying the default route — including both legs when the route is
   ECMP, so a load-balanced setup shows the truth rather than a guess.
@@ -173,7 +177,7 @@ computation are all covered.
 swift run MikroTikKitTests
 ```
 
-71 tests, 233 assertions, no XCTest dependency — the suite is a plain
+75 tests, 245 assertions, no XCTest dependency — the suite is a plain
 executable so it runs on a Command Line Tools toolchain with no Xcode.
 
 ## Caveats

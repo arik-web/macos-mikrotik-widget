@@ -260,6 +260,69 @@ func runSnapshotBuilderTests() {
         }
     }
 
+    suite("Public addresses") {
+        test("builder carries a public address onto the matching interface") {
+            let snapshot = SnapshotBuilder.build(
+                config: config,
+                state: try Fixture.state(),
+                rates: [:],
+                pings: [:],
+                publicAddresses: ["WAN1": "203.0.113.7"],
+                capturedAt: Date()
+            )
+            let wan1 = try unwrap(snapshot.interface(named: "WAN1"))
+            assertEqual(wan1.publicIPAddress, "203.0.113.7")
+
+            let wan2 = try unwrap(snapshot.interface(named: "WAN2"))
+            assertNil(wan2.publicIPAddress, "an unprobed uplink stays nil")
+        }
+
+        test("merging keeps a previous value when a lookup fails") {
+            let base = SnapshotBuilder.build(
+                config: config,
+                state: try Fixture.state(),
+                rates: [:],
+                pings: [:],
+                publicAddresses: ["WAN1": "203.0.113.7"],
+                capturedAt: Date()
+            )
+            // WAN1 absent from this round: a failed probe must not blank it.
+            let merged = base.applyingPublicAddresses(["WAN2": "198.51.100.4"])
+            assertEqual(try unwrap(merged.interface(named: "WAN1")).publicIPAddress, "203.0.113.7")
+            assertEqual(try unwrap(merged.interface(named: "WAN2")).publicIPAddress, "198.51.100.4")
+        }
+
+        test("a ping result does not discard the public address") {
+            let snapshot = SnapshotBuilder.build(
+                config: config,
+                state: try Fixture.state(),
+                rates: [:],
+                pings: [:],
+                publicAddresses: ["WAN1": "203.0.113.7"],
+                capturedAt: Date()
+            )
+            let pinged = snapshot.applyingPing(
+                PingOutcome(sent: 3, received: 3, averageLatency: 0.01),
+                toInterface: "WAN1"
+            )
+            assertEqual(try unwrap(pinged.interface(named: "WAN1")).publicIPAddress, "203.0.113.7")
+        }
+
+        test("survives a JSON round trip") {
+            let snapshot = SnapshotBuilder.build(
+                config: config,
+                state: try Fixture.state(),
+                rates: [:],
+                pings: [:],
+                publicAddresses: ["WAN1": "203.0.113.7"],
+                capturedAt: Date()
+            )
+            let data = try JSONEncoder().encode(snapshot)
+            let decoded = try JSONDecoder().decode(DashboardSnapshot.self, from: data)
+            assertEqual(try unwrap(decoded.interface(named: "WAN1")).publicIPAddress, "203.0.113.7")
+        }
+    }
+
     suite("IPv4") {
         test("tests CIDR membership") {
             assertTrue(IPv4.cidr("192.168.100.2/24", contains: "192.168.100.131"))

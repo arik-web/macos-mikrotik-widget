@@ -21,6 +21,11 @@ final class DashboardModel: ObservableObject {
     /// Interfaces with an enable/disable write still in flight.
     @Published private(set) var pendingToggles: Set<String> = []
 
+    /// Public by default, per the operator's request; persisted across launches.
+    @Published var addressMode: AddressMode = AddressModeStore.load() {
+        didSet { AddressModeStore.save(addressMode) }
+    }
+
     @Published var config: RouterConfig
     @Published var credentials: RouterCredentials
 
@@ -34,6 +39,10 @@ final class DashboardModel: ObservableObject {
     private var interfaceIDs: [String: String] = [:]
     /// Upstream gateway per interface, refreshed from the routing table.
     private var gatewaysByInterface: [String: String] = [:]
+    /// Public address per WAN, refreshed on its own slow timer.
+    private var publicAddresses: [String: String] = [:]
+    private var publicIPTask: Task<Void, Never>?
+    private var lastPublicIPAt = Date.distantPast
     private var rateTracker = RateTracker()
     private var pingResults: [String: PingOutcome] = [:]
     private var lastPingAt = Date.distantPast
@@ -76,6 +85,8 @@ final class DashboardModel: ObservableObject {
         pollTask = nil
         pingTask?.cancel()
         pingTask = nil
+        publicIPTask?.cancel()
+        publicIPTask = nil
         for task in pingTestTasks.values { task.cancel() }
         pingTestTasks.removeAll()
         for task in toggleTasks.values { task.cancel() }
@@ -98,6 +109,8 @@ final class DashboardModel: ObservableObject {
         connectionTests.removeAll()
         interfaceIDs.removeAll()
         gatewaysByInterface.removeAll()
+        publicAddresses.removeAll()
+        lastPublicIPAt = .distantPast
         history.removeAll()
         lastPingAt = .distantPast
         lastError = nil
@@ -145,6 +158,7 @@ final class DashboardModel: ObservableObject {
                 state: state,
                 rates: rates,
                 pings: pingResults,
+                publicAddresses: publicAddresses,
                 capturedAt: now
             )
 
@@ -153,6 +167,7 @@ final class DashboardModel: ObservableObject {
             lastError = nil
             appendHistory(from: built)
             schedulePingsIfNeeded(for: built)
+            schedulePublicIPLookupIfNeeded(for: built)
             publishToWidget(built, now: now)
         } catch {
             handle(error)
@@ -245,6 +260,60 @@ final class DashboardModel: ObservableObject {
     /// the routing table does not name a gateway for the interface.
     private func modemGateway(for interfaceName: String) -> String? {
         gatewaysByInterface[interfaceName]
+    }
+
+    // MARK: - Public address per uplink
+
+    /// Asks the router what public address each WAN presents. Runs on its own
+    /// slow timer and never blocks the counter poll — every lookup leaves the
+    /// network and can take seconds on a degraded link.
+    private func schedulePublicIPLookupIfNeeded(for snapshot: DashboardSnapshot) {
+        guard publicIPTask == nil else { return }
+        let echoURL = config.publicIPEchoURL.trimmingCharacters(in: .whitespaces)
+        guard !echoURL.isEmpty else { return }
+        guard Date().timeIntervalSince(lastPublicIPAt) >= config.publicIPInterval else { return }
+
+        // The source address is what an output-chain routing mark keys on, so
+        // an uplink with no address of its own cannot be probed.
+        let targets: [(name: String, source: String)] = snapshot.wanInterfaces.compactMap {
+            guard !$0.isDisabled, let address = $0.ipAddress else { return nil }
+            return ($0.name, address)
+        }
+        guard !targets.isEmpty else { return }
+
+        lastPublicIPAt = Date()
+        publicIPTask = Task { [weak self] in
+            guard let self else { return }
+            let client = self.client
+            let resolved = await withTaskGroup(of: (String, String?).self) { group in
+                for target in targets {
+                    group.addTask {
+                        let value = try? await client.publicAddress(
+                            sourceAddress: target.source,
+                            echoURL: echoURL
+                        )
+                        return (target.name, value)
+                    }
+                }
+                var found: [String: String] = [:]
+                for await (name, value) in group {
+                    if let value { found[name] = value }
+                }
+                return found
+            }
+
+            guard !Task.isCancelled else { return }
+            // Keep the previous answer for a link that failed this round rather
+            // than blanking a field the operator may be reading.
+            for (name, value) in resolved { self.publicAddresses[name] = value }
+            self.snapshot = self.snapshot.applyingPublicAddresses(self.publicAddresses)
+            self.publicIPTask = nil
+        }
+    }
+
+    func refreshPublicAddresses() {
+        lastPublicIPAt = .distantPast
+        schedulePublicIPLookupIfNeeded(for: snapshot)
     }
 
     /// Maps each interface to the gateway address a default route uses through
