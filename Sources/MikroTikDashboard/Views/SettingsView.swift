@@ -20,10 +20,16 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section("Router") {
-                TextField("Host", text: $host)
+                TextField("Management address", text: $host, prompt: Text("192.168.88.1"))
                 Toggle("Use HTTPS", isOn: $useTLS)
-                TextField("Username", text: $username)
+                TextField("Username", text: $username, prompt: Text("admin"))
                 SecureField("Password", text: $password)
+
+                Text("The password is stored in your login Keychain, never on disk "
+                     + "in the clear. A read-only RouterOS user is enough unless you "
+                     + "want the per-link power button.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section("Polling") {
@@ -48,7 +54,11 @@ struct SettingsView: View {
                     Button("Revert") { load() }
                     Button("Save") { save() }
                         .keyboardShortcut(.defaultAction)
-                        .disabled(host.trimmingCharacters(in: .whitespaces).isEmpty)
+                        .disabled(
+                            host.trimmingCharacters(in: .whitespaces).isEmpty
+                                || username.trimmingCharacters(in: .whitespaces).isEmpty
+                                || password.isEmpty
+                        )
                 }
             }
         }

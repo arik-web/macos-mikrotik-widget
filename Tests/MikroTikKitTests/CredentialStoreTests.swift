@@ -1,14 +1,18 @@
 import Foundation
 import MikroTikKit
 
-/// These touch the real login Keychain, so every test restores the state it
-/// found rather than assuming it started empty.
+/// These run against the real login Keychain, so the suite files its items
+/// under a throwaway service name and deletes them afterwards. The operator's
+/// stored login is never read or written.
 func runCredentialStoreTests() {
     suite("Credential store") {
-        let saved = CredentialStore.load()
+        // Never touch the operator's real item: a failed read here used to be
+        // able to clear a working login on restore.
+        let productionService = CredentialStore.service
+        CredentialStore.service = "io.github.macosmikrotikwidget.tests.\(UUID().uuidString)"
         defer {
             CredentialStore.clear()
-            if !saved.isEmpty { try? CredentialStore.save(saved) }
+            CredentialStore.service = productionService
         }
 
         test("round-trips through the Keychain") {

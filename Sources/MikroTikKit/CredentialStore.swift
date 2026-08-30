@@ -43,7 +43,11 @@ public enum CredentialStore {
     /// than silently trying a guess against their router.
     static let defaultUsername = "admin"
 
-    static let service = "io.github.macosmikrotikwidget.router"
+    /// Keychain service the item is filed under. A `var` so the test suite can
+    /// point at a throwaway service instead of the operator's real login —
+    /// these tests run against the actual login Keychain, and a suite that
+    /// wrote to the production item could destroy a working configuration.
+    public static var service = "io.github.macosmikrotikwidget.router"
     static let account = "router-credentials"
 
     /// Set to `<TeamID>.<bundle-id>` in a signed build to share the item with

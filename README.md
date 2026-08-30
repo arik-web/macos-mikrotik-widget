@@ -8,7 +8,7 @@ Built for dual-WAN setups, works fine with one.
 
 ```
 +------------------------------------------+
-| * 192.168.88.1                  [ ]  [x] |
+| * 192.168.88.1              [*] [ ] [x]  |
 +------------------------------------------+
 | * WAN1          ACTIVE    192.168.100.2  |
 |   v 48.5 Mbps    ^ 6.2 Mbps         (!)  |
@@ -72,8 +72,13 @@ actually reads your router before it says it is done.
 
 ## Configure
 
-Settings (⌘,) covers the router address, HTTPS, the login, and whether to show
-interfaces that have no IP address.
+Click the **gear** in the desktop widget's title bar — or press ⌘, — to set the
+router's management address, username and password. Nothing else is needed to
+get running; on a first launch the widget shows an **Open Settings** button in
+place of the interface list.
+
+Settings also covers HTTPS, the poll interval, the ping target, and whether to
+show interfaces that have no IP address.
 
 Which interfaces count as WAN or LAN is the one thing worth getting right,
 because the power button, ping badge and traffic totals all key off it. The
@@ -142,7 +147,7 @@ Apple Developer Team ID — an ad-hoc build has none.
 | `⇧⌘P` | Ping WAN interfaces |
 | `⌥⌘W` | Show desktop widget |
 | `⌥⌘D` | Show full dashboard |
-| `⌘,` | Settings |
+| `⌘,` | Settings (or the gear in the widget's title bar) |
 
 The desktop widget's ✕ closes that window, not the app — `⌥⌘W` brings it back.
 

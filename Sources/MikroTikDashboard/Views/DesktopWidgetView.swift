@@ -53,6 +53,8 @@ struct DesktopWidgetView: View {
 
             Spacer(minLength: 4)
 
+            SettingsIconButton()
+
             IconButton(symbol: "macwindow", help: "Switch to the full dashboard") {
                 openWindow(id: DashboardWindow.id)
                 NSApp.activate(ignoringOtherApps: true)
@@ -83,6 +85,15 @@ struct DesktopWidgetView: View {
                     .font(.system(size: 10))
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
+
+                if model.needsCredentials {
+                    SettingsLink {
+                        Text("Open Settings")
+                            .font(.system(size: 10, weight: .medium))
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(Theme.accent)
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, 16)
@@ -374,6 +385,30 @@ private struct CompactRate: View {
         .accessibilityLabel(
             "\(symbol == "arrow.down" ? "Download" : "Upload") \(Formatting.bitsPerSecond(value))"
         )
+    }
+}
+
+/// Opens the Settings scene, styled to match `IconButton`.
+///
+/// `SettingsLink` is the supported way to reach Settings from a window that is
+/// not the main one; calling the private `showSettingsWindow:` selector breaks
+/// across macOS releases.
+private struct SettingsIconButton: View {
+    @State private var isHovering = false
+
+    var body: some View {
+        SettingsLink {
+            Image(systemName: "gearshape.fill")
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(isHovering ? Theme.textPrimary : Theme.textSecondary)
+                .frame(width: 18, height: 18)
+                .background(Color.white.opacity(isHovering ? 0.12 : 0.06))
+                .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovering = $0 }
+        .help("Router settings: address, username and password")
+        .accessibilityLabel("Router settings")
     }
 }
 
