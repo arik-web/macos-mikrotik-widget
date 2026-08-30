@@ -132,6 +132,26 @@ public actor RouterClient {
         return nil
     }
 
+    // MARK: - DHCP leases
+
+    public func leases() async throws -> [DHCPLease] {
+        try await get("ip/dhcp-server/lease").compactMap(DHCPLease.init(record:))
+    }
+
+    /// Turns a lease the server handed out into a reservation, so the device
+    /// keeps this address. RouterOS assigns a new item id, so callers should
+    /// re-read the list afterwards rather than reusing `id`.
+    public func makeLeaseStatic(id: String) async throws {
+        _ = try await post("ip/dhcp-server/lease/make-static", body: [".id": id], timeout: 10)
+    }
+
+    /// Deletes a lease. Used to drop a reservation back to dynamic: RouterOS
+    /// has no "make-dynamic", and the client is handed a fresh dynamic lease
+    /// when it next renews.
+    public func removeLease(id: String) async throws {
+        _ = try await send("DELETE", path: "ip/dhcp-server/lease/\(id)", body: [:], timeout: 10)
+    }
+
     /// Fetches the three collections a dashboard refresh needs in parallel.
     public func fetchState() async throws -> RouterState {
         async let interfaces = interfaces()
@@ -210,10 +230,18 @@ public actor RouterClient {
         // A command with no results answers with an empty body.
         guard !data.isEmpty else { return [] }
 
-        let decoder = JSONDecoder()
-        if let records = try? decoder.decode([RouterRecord].self, from: data) {
+        if let records = Self.decodeRecords(data) { return records }
+
+        // A DHCP client can register any bytes it likes as its host-name, so a
+        // lease list routinely carries sequences that are not valid UTF-8.
+        // JSONDecoder rejects the whole payload over one bad byte; re-encoding
+        // swaps them for U+FFFD and costs nothing on the common path, because
+        // it only runs after a decode has already failed.
+        if let repaired = Self.repairingUTF8(data), let records = Self.decodeRecords(repaired) {
             return records
         }
+
+        let decoder = JSONDecoder()
         if let single = try? decoder.decode(RouterRecord.self, from: data) {
             if let message = single.string("message") ?? single.string("detail") {
                 throw RouterError.httpStatus(single.int("error") ?? 0, message)
@@ -222,6 +250,17 @@ public actor RouterClient {
         }
         let preview = String(decoding: data.prefix(120), as: UTF8.self)
         throw RouterError.decoding(preview)
+    }
+
+    private static func decodeRecords(_ data: Data) -> [RouterRecord]? {
+        try? JSONDecoder().decode([RouterRecord].self, from: data)
+    }
+
+    /// Returns `data` with invalid UTF-8 replaced, or nil when it was already
+    /// valid and a retry would be pointless.
+    public static func repairingUTF8(_ data: Data) -> Data? {
+        let repaired = Data(String(decoding: data, as: UTF8.self).utf8)
+        return repaired == data ? nil : repaired
     }
 
     private static func errorMessage(in data: Data) -> String? {

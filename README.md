@@ -42,6 +42,9 @@ Built for dual-WAN setups, works fine with one.
   on-demand "Test" button per link.
 - **Three surfaces, one poll loop:** a full dashboard window, a floating
   always-on-top desktop card, and a menu-bar item showing `↓ / ↑` as live text.
+- **A DHCP tab** listing every lease with its device name, address, MAC and
+  state, filterable and searchable. A switch per row reserves a dynamic lease
+  or releases a reservation; click an address or MAC to copy it.
 - **A WidgetKit widget** in Notification Centre — small, medium and large.
 - **No third-party dependencies.** URLSession and SwiftUI only.
 
@@ -177,7 +180,7 @@ computation are all covered.
 swift run MikroTikKitTests
 ```
 
-75 tests, 245 assertions, no XCTest dependency — the suite is a plain
+82 tests, 273 assertions, no XCTest dependency — the suite is a plain
 executable so it runs on a Command Line Tools toolchain with no Xcode.
 
 ## Caveats

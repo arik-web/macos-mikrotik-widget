@@ -9,5 +9,6 @@ runTrafficRateTests()
 runFormattingTests()
 runSnapshotBuilderTests()
 runCredentialStoreTests()
+runDHCPLeaseTests()
 
 finish()

@@ -18,6 +18,11 @@ final class DashboardModel: ObservableObject {
     @Published private(set) var isRunning = false
     @Published private(set) var lastUpdate: Date?
     @Published private(set) var connectionTests: [String: ConnectionTestState] = [:]
+    @Published private(set) var leases: [DHCPLease] = []
+    @Published private(set) var leasesError: String?
+    @Published private(set) var isLoadingLeases = false
+    /// Leases with a reserve/release write still in flight.
+    @Published private(set) var pendingLeaseWrites: Set<String> = []
     /// Interfaces with an enable/disable write still in flight.
     @Published private(set) var pendingToggles: Set<String> = []
 
@@ -34,6 +39,7 @@ final class DashboardModel: ObservableObject {
     private var pingTask: Task<Void, Never>?
     private var pingTestTasks: [String: Task<Void, Never>] = [:]
     private var toggleTasks: [String: Task<Void, Never>] = [:]
+    private var leaseTask: Task<Void, Never>?
     /// RouterOS item ids from the last poll, keyed by interface name. Writing
     /// through the live `.id` keeps working if an interface is ever renamed.
     private var interfaceIDs: [String: String] = [:]
@@ -91,6 +97,8 @@ final class DashboardModel: ObservableObject {
         pingTestTasks.removeAll()
         for task in toggleTasks.values { task.cancel() }
         toggleTasks.removeAll()
+        leaseTask?.cancel()
+        leaseTask = nil
         pendingToggles.removeAll()
         isRunning = false
     }
@@ -409,6 +417,58 @@ final class DashboardModel: ObservableObject {
     func isTogglingInterface(_ name: String) -> Bool {
         pendingToggles.contains(name)
     }
+
+    // MARK: - DHCP leases
+
+    /// Loaded on demand rather than on the counter poll: 77 rows of lease data
+    /// is a lot to pull every two seconds for a tab that is usually closed.
+    func loadLeases() {
+        guard leaseTask == nil else { return }
+        isLoadingLeases = true
+        leaseTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                let fetched = try await self.client.leases()
+                self.leases = fetched.sortedForDisplay()
+                self.leasesError = nil
+            } catch {
+                self.leasesError = (error as? RouterError)?.errorDescription
+                    ?? error.localizedDescription
+            }
+            self.isLoadingLeases = false
+            self.leaseTask = nil
+        }
+    }
+
+    /// Reserves a dynamic lease, or releases a reservation back to dynamic.
+    ///
+    /// Releasing deletes the lease row: RouterOS has no inverse of
+    /// `make-static`, and the client picks up a fresh dynamic lease when it
+    /// next renews.
+    func setLeaseReserved(_ reserved: Bool, lease: DHCPLease) {
+        guard !pendingLeaseWrites.contains(lease.id) else { return }
+        pendingLeaseWrites.insert(lease.id)
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                if reserved {
+                    try await self.client.makeLeaseStatic(id: lease.id)
+                } else {
+                    try await self.client.removeLease(id: lease.id)
+                }
+                self.leasesError = nil
+            } catch {
+                self.leasesError = (error as? RouterError)?.errorDescription
+                    ?? error.localizedDescription
+            }
+            self.pendingLeaseWrites.remove(lease.id)
+            // make-static reassigns the item id, so re-read rather than patching
+            // the row in place.
+            self.loadLeases()
+        }
+    }
+
+    func isWritingLease(_ id: String) -> Bool { pendingLeaseWrites.contains(id) }
 
     // MARK: - Widget hand-off
 

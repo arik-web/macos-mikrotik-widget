@@ -6,24 +6,38 @@ struct DashboardView: View {
 
     private let columns = [GridItem(.adaptive(minimum: 330), spacing: 14)]
 
+    enum Tab: String, CaseIterable {
+        case interfaces = "Interfaces"
+        case leases = "DHCP"
+    }
+
+    @State private var tab: Tab = .interfaces
+
     var body: some View {
         VStack(spacing: 0) {
             StatusHeaderView()
 
-            if model.snapshot.interfaces.isEmpty {
-                emptyState
-            } else {
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 14) {
-                        ForEach(model.snapshot.interfaces) { interface in
-                            InterfaceCardView(
-                                interface: interface,
-                                history: model.history(for: interface.name)
-                            )
+            tabBar
+
+            switch tab {
+            case .interfaces:
+                if model.snapshot.interfaces.isEmpty {
+                    emptyState
+                } else {
+                    ScrollView {
+                        LazyVGrid(columns: columns, spacing: 14) {
+                            ForEach(model.snapshot.interfaces) { interface in
+                                InterfaceCardView(
+                                    interface: interface,
+                                    history: model.history(for: interface.name)
+                                )
+                            }
                         }
+                        .padding(16)
                     }
-                    .padding(16)
                 }
+            case .leases:
+                LeasesView()
             }
 
             footer
@@ -31,6 +45,38 @@ struct DashboardView: View {
         .background(Theme.background)
         .preferredColorScheme(.dark)
         .onAppear { model.start() }
+    }
+
+    private var tabBar: some View {
+        HStack(spacing: 0) {
+            ForEach(Tab.allCases, id: \.self) { candidate in
+                Button {
+                    tab = candidate
+                } label: {
+                    Text(candidate.rawValue)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(tab == candidate ? Theme.textPrimary : Theme.textSecondary)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .background(
+                            // Underline the active tab rather than filling it:
+                            // the cards below already carry a lot of colour.
+                            Rectangle()
+                                .fill(tab == candidate ? Theme.accent : .clear)
+                                .frame(height: 2),
+                            alignment: .bottom
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(tab == candidate ? [.isSelected] : [])
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 8)
+        .background(Theme.surface.opacity(0.35))
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Theme.border).frame(height: 1)
+        }
     }
 
     private var emptyState: some View {
