@@ -2,8 +2,8 @@ import AppKit
 import SwiftUI
 import MikroTikKit
 
-/// DHCP leases: what the router has handed out, and which of those are
-/// reservations rather than whatever the pool happened to give.
+/// DHCP leases: what the router has handed out, which of those are
+/// reservations, and which uplink each client is pinned to.
 struct LeasesView: View {
     @EnvironmentObject private var model: DashboardModel
 
@@ -108,8 +108,12 @@ struct LeasesView: View {
     /// The denominator matters: "12 shown" alone hides how much was filtered.
     private var countLabel: String {
         let reserved = model.leases.filter { !$0.isDynamic }.count
-        let shown = visible.count
-        return "\(shown) of \(model.leases.count) · \(reserved) reserved"
+        var parts = ["\(visible.count) of \(model.leases.count)", "\(reserved) reserved"]
+        if model.config.supportsRoutePinning {
+            let pinned = model.leases.filter { model.routePin(for: $0.address).isPinned }.count
+            parts.append("\(pinned) pinned")
+        }
+        return parts.joined(separator: " · ")
     }
 
     private func message(_ text: String, isError: Bool) -> some View {
@@ -148,12 +152,15 @@ struct LeasesView: View {
 
     private var header: some View {
         HStack(spacing: 10) {
-            Text("Device").frame(width: 190, alignment: .leading)
-            Text("Address").frame(width: 110, alignment: .leading)
-            Text("MAC").frame(width: 140, alignment: .leading)
-            Text("State").frame(width: 70, alignment: .leading)
+            Text("Device").frame(width: 180, alignment: .leading)
+            Text("Address").frame(width: 108, alignment: .leading)
+            Text("MAC").frame(width: 136, alignment: .leading)
+            Text("State").frame(width: 66, alignment: .leading)
+            if model.config.supportsRoutePinning {
+                Text("Route").frame(width: 96, alignment: .leading)
+            }
             Spacer(minLength: 0)
-            Text("Reserved").frame(width: 80, alignment: .trailing)
+            Text("Reserved").frame(width: 74, alignment: .trailing)
         }
         .font(.system(size: 9, weight: .semibold))
         .foregroundStyle(Theme.textTertiary)
@@ -164,8 +171,7 @@ struct LeasesView: View {
     }
 }
 
-/// One lease. The toggle is the whole point of the tab, so it stays legible
-/// even while a write is in flight.
+/// One lease row.
 private struct LeaseRow: View {
     @EnvironmentObject private var model: DashboardModel
 
@@ -173,7 +179,7 @@ private struct LeaseRow: View {
     let setReserved: (Bool) -> Void
 
     @State private var isHovering = false
-    @State private var justCopied = false
+    @State private var copiedField: String?
 
     private var isWriting: Bool { model.isWritingLease(lease.id) }
 
@@ -190,23 +196,10 @@ private struct LeaseRow: View {
                         .foregroundStyle(Theme.textTertiary)
                 }
             }
-            .frame(width: 190, alignment: .leading)
+            .frame(width: 180, alignment: .leading)
 
-            Text(justCopied ? "Copied" : lease.address)
-                .font(.system(size: 11, design: .monospaced))
-                .foregroundStyle(justCopied ? Theme.download : Theme.textSecondary)
-                .frame(width: 110, alignment: .leading)
-                .contentShape(Rectangle())
-                .onTapGesture { copy(lease.address) }
-                .help("Click to copy \(lease.address)")
-
-            Text(lease.macAddress)
-                .font(.system(size: 10, design: .monospaced))
-                .foregroundStyle(Theme.textTertiary)
-                .frame(width: 140, alignment: .leading)
-                .contentShape(Rectangle())
-                .onTapGesture { copy(lease.macAddress) }
-                .help("Click to copy \(lease.macAddress)")
+            copyable(lease.address, field: "ip", width: 108, size: 11)
+            copyable(lease.macAddress, field: "mac", width: 136, size: 10)
 
             HStack(spacing: 4) {
                 Circle()
@@ -216,7 +209,12 @@ private struct LeaseRow: View {
                     .font(.system(size: 10))
                     .foregroundStyle(Theme.textTertiary)
             }
-            .frame(width: 70, alignment: .leading)
+            .frame(width: 66, alignment: .leading)
+
+            if model.config.supportsRoutePinning {
+                RoutePicker(address: lease.address)
+                    .frame(width: 96, alignment: .leading)
+            }
 
             Spacer(minLength: 0)
 
@@ -236,7 +234,7 @@ private struct LeaseRow: View {
                     .controlSize(.mini)
                 }
             }
-            .frame(width: 80, alignment: .trailing)
+            .frame(width: 74, alignment: .trailing)
             .help(lease.isDynamic
                   ? "Reserve \(lease.address) for this device"
                   : "Release this reservation back to the pool")
@@ -245,20 +243,96 @@ private struct LeaseRow: View {
         .padding(.vertical, 7)
         .background(isHovering ? Color.white.opacity(0.04) : .clear)
         .onHover { isHovering = $0 }
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .contain)
         .accessibilityLabel(
             "\(lease.displayName), \(lease.address), \(lease.kindLabel), \(lease.status ?? "unknown")"
         )
     }
 
-    private func copy(_ value: String) {
+    private func copyable(
+        _ value: String,
+        field: String,
+        width: CGFloat,
+        size: CGFloat
+    ) -> some View {
+        Text(copiedField == field ? "Copied" : value)
+            .font(.system(size: size, design: .monospaced))
+            .foregroundStyle(copiedField == field ? Theme.download : Theme.textSecondary)
+            .lineLimit(1)
+            .frame(width: width, alignment: .leading)
+            .contentShape(Rectangle())
+            .onTapGesture { copy(value, field: field) }
+            .help(value.isEmpty ? "" : "Click to copy \(value)")
+    }
+
+    private func copy(_ value: String, field: String) {
         guard !value.isEmpty else { return }
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(value, forType: .string)
-        justCopied = true
+        copiedField = field
         Task {
             try? await Task.sleep(nanoseconds: 900_000_000)
-            justCopied = false
+            if copiedField == field { copiedField = nil }
         }
+    }
+}
+
+/// LB / per-WAN selector for one address. A menu rather than a segmented
+/// control so the row stays readable at three or more uplinks.
+private struct RoutePicker: View {
+    @EnvironmentObject private var model: DashboardModel
+
+    let address: String
+
+    private var pin: RoutePin { model.routePin(for: address) }
+    private var isWriting: Bool { model.isWritingRoute(address) }
+
+    var body: some View {
+        Menu {
+            ForEach(model.routePinOptions, id: \.self) { option in
+                Button {
+                    model.setRoutePin(option, forAddress: address)
+                } label: {
+                    Text(option == pin ? "✓ \(menuLabel(option))" : "   \(menuLabel(option))")
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                if isWriting {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .controlSize(.mini)
+                        .scaleEffect(0.55)
+                } else {
+                    Circle()
+                        .fill(pin.isPinned ? Theme.accent : Theme.textTertiary)
+                        .frame(width: 5, height: 5)
+                }
+                Text(pin.label)
+                    .font(.system(size: 10, weight: pin.isPinned ? .medium : .regular))
+                    .foregroundStyle(pin.isPinned ? Theme.textPrimary : Theme.textTertiary)
+            }
+        }
+        .menuStyle(.borderlessButton)
+        .fixedSize()
+        .disabled(isWriting)
+        .help(helpText)
+        .accessibilityLabel("Route for \(address): \(pin.label)")
+    }
+
+    private func menuLabel(_ option: RoutePin) -> String {
+        switch option {
+        case .loadBalanced: return "LB — load balanced"
+        case .pinned(let name): return "\(name) — pin to this uplink"
+        }
+    }
+
+    /// Say what actually happens: the change clears live connections.
+    private var helpText: String {
+        pin.isPinned
+            ? "\(address) is pinned to \(pin.label). Changing it clears this device's "
+              + "tracked connections so the new route applies immediately."
+            : "\(address) follows the load balancer. Pin it to one uplink for a stable "
+              + "exit; its tracked connections are cleared so the change applies now."
     }
 }

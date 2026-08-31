@@ -96,3 +96,59 @@ func runDHCPLeaseTests() {
         }
     }
 }
+
+func runRoutePinTests() {
+    suite("Route pinning") {
+        let config = RouterConfig(wanLockLists: ["WAN1": "lock_wan1", "WAN2": "lock_wan2"])
+
+        func pin(for address: String, in entries: [AddressListEntry]) -> RoutePin {
+            for (interface, list) in config.wanLockLists {
+                if entries.contains(where: { $0.list == list && $0.address == address }) {
+                    return .pinned(interface)
+                }
+            }
+            return .loadBalanced
+        }
+
+        test("an address in no lock list is load balanced") {
+            assertEqual(pin(for: "192.168.88.10", in: []), .loadBalanced)
+            assertEqual(RoutePin.loadBalanced.label, "LB")
+            assertFalse(RoutePin.loadBalanced.isPinned)
+        }
+
+        test("membership of a lock list pins to that uplink") {
+            let entries = [
+                AddressListEntry(id: "*1", list: "lock_wan2", address: "192.168.88.10")
+            ]
+            assertEqual(pin(for: "192.168.88.10", in: entries), .pinned("WAN2"))
+            assertEqual(RoutePin.pinned("WAN2").label, "WAN2")
+            assertTrue(RoutePin.pinned("WAN2").isPinned)
+        }
+
+        test("an unrelated list does not pin") {
+            // Only lists this config manages may drive the column.
+            let entries = [
+                AddressListEntry(id: "*1", list: "some_other_list", address: "192.168.88.10")
+            ]
+            assertEqual(pin(for: "192.168.88.10", in: entries), .loadBalanced)
+        }
+
+        test("parses and rejects lock-list settings text") {
+            let parsed = SettingsPairParser.parse("WAN1=lock_wan1, WAN2 = lock_wan2 ")
+            assertEqual(parsed["WAN1"], "lock_wan1")
+            assertEqual(parsed["WAN2"], "lock_wan2")
+            assertEqual(parsed.count, 2)
+
+            let messy = SettingsPairParser.parse("WAN1, =nolist, WAN3=, WAN4=ok")
+            assertEqual(messy, ["WAN4": "ok"], "malformed pairs are dropped, not fatal")
+        }
+
+        test("pinning is hidden until it is configured") {
+            // Explicit rather than relying on the shipped default, which
+            // differs between a generic build and a configured one.
+            assertFalse(RouterConfig(wanLockLists: [:]).supportsRoutePinning)
+            assertTrue(config.supportsRoutePinning)
+            assertEqual(Set(config.allLockLists), ["lock_wan1", "lock_wan2"])
+        }
+    }
+}

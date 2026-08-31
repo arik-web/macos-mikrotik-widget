@@ -152,6 +152,56 @@ public actor RouterClient {
         _ = try await send("DELETE", path: "ip/dhcp-server/lease/\(id)", body: [:], timeout: 10)
     }
 
+    // MARK: - Address lists and route pinning
+
+    public func addressListEntries() async throws -> [AddressListEntry] {
+        try await get("ip/firewall/address-list").compactMap(AddressListEntry.init(record:))
+    }
+
+    public func addAddressListEntry(
+        list: String,
+        address: String,
+        comment: String? = nil
+    ) async throws {
+        var body = ["list": list, "address": address]
+        if let comment, !comment.isEmpty { body["comment"] = comment }
+        _ = try await send("PUT", path: "ip/firewall/address-list", body: body, timeout: 10)
+    }
+
+    public func removeAddressListEntry(id: String) async throws {
+        _ = try await send("DELETE", path: "ip/firewall/address-list/\(id)", body: [:], timeout: 10)
+    }
+
+    /// Drops tracked connections for one source address.
+    ///
+    /// Connection marks are assigned once, on the first packet, so an existing
+    /// connection keeps riding the old uplink until it dies. Without this a
+    /// route change looks like it did nothing for minutes. Returns how many
+    /// entries were cleared.
+    @discardableResult
+    public func flushConnections(sourceAddress: String) async throws -> Int {
+        let connections = try await get("ip/firewall/connection", timeout: 20)
+        let ids = connections.compactMap { record -> String? in
+            guard
+                let id = record.string(".id"),
+                let source = record.string("src-address"),
+                source.split(separator: ":").first.map(String.init) == sourceAddress
+            else { return nil }
+            return id
+        }
+        for id in ids {
+            // A connection can expire between the read and the delete; that is
+            // the desired end state either way, so a failure is not fatal.
+            _ = try? await send(
+                "DELETE",
+                path: "ip/firewall/connection/\(id)",
+                body: [:],
+                timeout: 10
+            )
+        }
+        return ids.count
+    }
+
     /// Fetches the three collections a dashboard refresh needs in parallel.
     public func fetchState() async throws -> RouterState {
         async let interfaces = interfaces()

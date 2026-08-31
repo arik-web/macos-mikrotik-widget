@@ -23,6 +23,10 @@ final class DashboardModel: ObservableObject {
     @Published private(set) var isLoadingLeases = false
     /// Leases with a reserve/release write still in flight.
     @Published private(set) var pendingLeaseWrites: Set<String> = []
+    /// Lock-list membership, keyed by address, for the route column.
+    @Published private(set) var lockEntries: [AddressListEntry] = []
+    /// Addresses with a route change in flight.
+    @Published private(set) var pendingRouteWrites: Set<String> = []
     /// Interfaces with an enable/disable write still in flight.
     @Published private(set) var pendingToggles: Set<String> = []
 
@@ -428,8 +432,11 @@ final class DashboardModel: ObservableObject {
         leaseTask = Task { [weak self] in
             guard let self else { return }
             do {
-                let fetched = try await self.client.leases()
-                self.leases = fetched.sortedForDisplay()
+                async let leases = self.client.leases()
+                async let lists = self.client.addressListEntries()
+                self.leases = try await leases.sortedForDisplay()
+                let managed = Set(self.config.allLockLists)
+                self.lockEntries = try await lists.filter { managed.contains($0.list) }
                 self.leasesError = nil
             } catch {
                 self.leasesError = (error as? RouterError)?.errorDescription
@@ -469,6 +476,63 @@ final class DashboardModel: ObservableObject {
     }
 
     func isWritingLease(_ id: String) -> Bool { pendingLeaseWrites.contains(id) }
+
+    // MARK: - Route pinning
+
+    /// Which uplink this address is pinned to, from lock-list membership.
+    func routePin(for address: String) -> RoutePin {
+        for (interface, list) in config.wanLockLists {
+            if lockEntries.contains(where: { $0.list == list && $0.address == address }) {
+                return .pinned(interface)
+            }
+        }
+        return .loadBalanced
+    }
+
+    /// The choices to offer: load balanced, plus one per configured uplink.
+    var routePinOptions: [RoutePin] {
+        [.loadBalanced] + config.wanLockLists.keys.sorted().map { RoutePin.pinned($0) }
+    }
+
+    func isWritingRoute(_ address: String) -> Bool { pendingRouteWrites.contains(address) }
+
+    /// Moves an address between the lock lists, then clears its tracked
+    /// connections so the change applies now rather than whenever the current
+    /// ones happen to expire.
+    func setRoutePin(_ pin: RoutePin, forAddress address: String) {
+        guard !pendingRouteWrites.contains(address) else { return }
+        guard routePin(for: address) != pin else { return }
+        pendingRouteWrites.insert(address)
+
+        Task { [weak self] in
+            guard let self else { return }
+            let existing = self.lockEntries.filter { $0.address == address }
+            do {
+                // Remove first: a client in two lock lists would be marked by
+                // whichever mangle rule happens to sit higher.
+                for entry in existing {
+                    try await self.client.removeAddressListEntry(id: entry.id)
+                }
+                if case .pinned(let interface) = pin,
+                   let list = self.config.wanLockLists[interface] {
+                    try await self.client.addAddressListEntry(
+                        list: list,
+                        address: address,
+                        comment: "pinned to \(interface) from the dashboard"
+                    )
+                }
+                _ = try? await self.client.flushConnections(sourceAddress: address)
+                self.leasesError = nil
+            } catch {
+                self.leasesError = (error as? RouterError)?.errorDescription
+                    ?? error.localizedDescription
+            }
+            self.pendingRouteWrites.remove(address)
+            self.loadLeases()
+        }
+    }
+
+
 
     // MARK: - Widget hand-off
 

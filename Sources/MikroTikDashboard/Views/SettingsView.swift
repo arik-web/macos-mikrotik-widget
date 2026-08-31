@@ -17,6 +17,7 @@ struct SettingsView: View {
     @State private var showAllInterfaces = false
     @State private var publicIPEchoURL = ""
     @State private var publicIPInterval = 300.0
+    @State private var lockLists = ""
     @State private var didLoad = false
 
     var body: some View {
@@ -77,6 +78,16 @@ struct SettingsView: View {
                 TextField("WAN names (comma separated)", text: $wanNames)
                 TextField("LAN names (comma separated)", text: $lanNames)
                 Toggle("Show interfaces without an IP address", isOn: $showAllInterfaces)
+
+                TextField("Route pin lists", text: $lockLists,
+                          prompt: Text("WAN1=lock_wan1, WAN2=lock_wan2"))
+
+                Text("Maps each uplink to the firewall address list that pins a client "
+                     + "to it, enabling the Route column on the DHCP tab. Your "
+                     + "policy-routing rules must already match on these lists. Leave "
+                     + "blank to hide the control.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section {
@@ -111,6 +122,10 @@ struct SettingsView: View {
         showAllInterfaces = config.showAllInterfaces
         publicIPEchoURL = config.publicIPEchoURL
         publicIPInterval = config.publicIPInterval
+        lockLists = config.wanLockLists
+            .sorted { $0.key < $1.key }
+            .map { "\($0.key)=\($0.value)" }
+            .joined(separator: ", ")
     }
 
     private func save() {
@@ -125,6 +140,7 @@ struct SettingsView: View {
         config.showAllInterfaces = showAllInterfaces
         config.publicIPEchoURL = publicIPEchoURL.trimmingCharacters(in: .whitespaces)
         config.publicIPInterval = publicIPInterval
+        config.wanLockLists = SettingsPairParser.parse(lockLists)
 
         model.applySettings(
             config: config,

@@ -10,5 +10,6 @@ runFormattingTests()
 runSnapshotBuilderTests()
 runCredentialStoreTests()
 runDHCPLeaseTests()
+runRoutePinTests()
 
 finish()

@@ -45,6 +45,9 @@ Built for dual-WAN setups, works fine with one.
 - **A DHCP tab** listing every lease with its device name, address, MAC and
   state, filterable and searchable. A switch per row reserves a dynamic lease
   or releases a reservation; click an address or MAC to copy it.
+- **Per-client route pinning** from that same list: send a device out one
+  named uplink or leave it on the load balancer. Optional — see
+  [docs/route-pinning.md](docs/route-pinning.md).
 - **A WidgetKit widget** in Notification Centre — small, medium and large.
 - **No third-party dependencies.** URLSession and SwiftUI only.
 
@@ -180,7 +183,7 @@ computation are all covered.
 swift run MikroTikKitTests
 ```
 
-82 tests, 273 assertions, no XCTest dependency — the suite is a plain
+87 tests, 287 assertions, no XCTest dependency — the suite is a plain
 executable so it runs on a Command Line Tools toolchain with no Xcode.
 
 ## Caveats

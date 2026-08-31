@@ -24,6 +24,11 @@ public struct RouterConfig: Codable, Equatable {
     /// Seconds between public-address lookups. Far slower than the counter
     /// poll: the address rarely changes and each check leaves the network.
     public var publicIPInterval: TimeInterval
+    /// WAN interface name -> the firewall address list whose members are
+    /// pinned to that uplink. A client in none of them rides the load
+    /// balancer. Empty hides the route control entirely, because without
+    /// policy-routing rules keyed on these lists it would do nothing.
+    public var wanLockLists: [String: String]
 
     public init(
         host: String = "192.168.88.1",
@@ -36,7 +41,8 @@ public struct RouterConfig: Codable, Equatable {
         lanInterfaceNames: [String] = ["bridge1"],
         showAllInterfaces: Bool = false,
         publicIPEchoURL: String = "http://ifconfig.me/ip",
-        publicIPInterval: TimeInterval = 300
+        publicIPInterval: TimeInterval = 300,
+        wanLockLists: [String: String] = [:]
     ) {
         self.host = host
         self.useTLS = useTLS
@@ -49,6 +55,7 @@ public struct RouterConfig: Codable, Equatable {
         self.showAllInterfaces = showAllInterfaces
         self.publicIPEchoURL = publicIPEchoURL
         self.publicIPInterval = publicIPInterval
+        self.wanLockLists = wanLockLists
     }
 
     public static let `default` = RouterConfig()
@@ -56,6 +63,12 @@ public struct RouterConfig: Codable, Equatable {
     public var baseURL: URL? {
         URL(string: "\(useTLS ? "https" : "http")://\(host)/rest")
     }
+
+    /// True when route pinning is configured and the control is worth showing.
+    public var supportsRoutePinning: Bool { !wanLockLists.isEmpty }
+
+    /// Every list this config manages, so a change can clear the others.
+    public var allLockLists: [String] { Array(wanLockLists.values) }
 
     public func role(for interfaceName: String) -> InterfaceRole {
         if wanInterfaceNames.contains(interfaceName) { return .wan }
