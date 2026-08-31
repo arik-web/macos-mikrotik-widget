@@ -152,3 +152,17 @@ func runRoutePinTests() {
         }
     }
 }
+
+func runTransportTests() {
+    suite("Transport") {
+        test("an empty payload means no body at all") {
+            // A DELETE that arrives with `{}` makes RouterOS hang: the request
+            // never completes and the row is never removed. Observed against a
+            // live router — curl returned http=000 with a body and 204 without.
+            assertFalse(RouterClient.carriesBody([:]),
+                        "an empty dictionary must not become a JSON body")
+            assertTrue(RouterClient.carriesBody(["disabled": "true"]),
+                       "a real payload still has to be sent")
+        }
+    }
+}

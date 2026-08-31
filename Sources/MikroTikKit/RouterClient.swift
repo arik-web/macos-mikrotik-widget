@@ -254,10 +254,23 @@ public actor RouterClient {
     ) async throws -> [RouterRecord] {
         var request = authorizedRequest(for: try url(for: path), timeout: timeout)
         request.httpMethod = method
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        // RouterOS stalls on a DELETE that carries a body, so an empty payload
+        // must mean no body at all rather than `{}`. Sending one made every
+        // delete hang and silently do nothing.
+        if Self.carriesBody(body) {
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        }
         return try await perform(request)
     }
+
+    /// Whether a request should carry a JSON payload at all.
+    ///
+    /// RouterOS stalls on a DELETE that arrives with a body, so an empty
+    /// dictionary has to mean "no body", not `{}`. Sending `{}` made every
+    /// delete — address-list entries, lease reservations, connection flushes —
+    /// hang and silently do nothing.
+    public static func carriesBody(_ body: [String: String]) -> Bool { !body.isEmpty }
 
     private func perform(_ request: URLRequest) async throws -> [RouterRecord] {
         let data: Data

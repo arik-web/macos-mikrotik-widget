@@ -183,7 +183,7 @@ computation are all covered.
 swift run MikroTikKitTests
 ```
 
-87 tests, 287 assertions, no XCTest dependency — the suite is a plain
+88 tests, 289 assertions, no XCTest dependency — the suite is a plain
 executable so it runs on a Command Line Tools toolchain with no Xcode.
 
 ## Caveats

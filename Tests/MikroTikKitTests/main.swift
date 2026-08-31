@@ -11,5 +11,6 @@ runSnapshotBuilderTests()
 runCredentialStoreTests()
 runDHCPLeaseTests()
 runRoutePinTests()
+runTransportTests()
 
 finish()
