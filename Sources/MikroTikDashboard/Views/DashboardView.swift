@@ -17,6 +17,10 @@ struct DashboardView: View {
         VStack(spacing: 0) {
             StatusHeaderView()
 
+            if model.isUnreachable {
+                UnreachableBanner()
+            }
+
             tabBar
 
             switch tab {

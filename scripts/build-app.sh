@@ -28,7 +28,21 @@ APPEX="$BUNDLE/Contents/PlugIns/$WIDGET_NAME.appex"
 
 ARCH="$(uname -m)"
 TARGET_TRIPLE="$ARCH-apple-macos$DEPLOYMENT_TARGET"
-SDK_PATH="$(xcrun --show-sdk-path)"
+# macOS 27's SDK makes SwiftUI's @State macro-backed, and the SwiftUIMacros
+# plugin ships only with full Xcode - Command Line Tools does not have it. The
+# 26.x SDK still resolves @State without that plugin, so pin to it when one is
+# present and no Xcode is installed.
+if [[ -z "${SDKROOT:-}" ]] && [[ ! -d /Applications/Xcode.app ]]; then
+    for candidate in MacOSX26.sdk MacOSX26.5.sdk; do
+        if [[ -d "/Library/Developer/CommandLineTools/SDKs/$candidate" ]]; then
+            export SDKROOT="/Library/Developer/CommandLineTools/SDKs/$candidate"
+            echo "==> pinning SDKROOT to $candidate (no Xcode; 27.0 SDK lacks SwiftUIMacros)"
+            break
+        fi
+    done
+fi
+
+SDK_PATH="${SDKROOT:-$(xcrun --show-sdk-path)}"
 
 if [[ "$CONFIGURATION" == "debug" ]]; then
     SWIFT_OPT=(-Onone)

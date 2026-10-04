@@ -17,6 +17,8 @@ final class DashboardModel: ObservableObject {
     @Published private(set) var lastError: String?
     @Published private(set) var isRunning = false
     @Published private(set) var lastUpdate: Date?
+    /// Failed polls in a row. One blip is normal; a run of them is an outage.
+    @Published private(set) var consecutiveFailures = 0
     @Published private(set) var connectionTests: [String: ConnectionTestState] = [:]
     @Published private(set) var leases: [DHCPLease] = []
     @Published private(set) var leasesError: String?
@@ -176,6 +178,7 @@ final class DashboardModel: ObservableObject {
 
             snapshot = built
             lastUpdate = now
+            consecutiveFailures = 0
             lastError = nil
             appendHistory(from: built)
             schedulePingsIfNeeded(for: built)
@@ -202,6 +205,7 @@ final class DashboardModel: ObservableObject {
     private func handle(_ error: Error) {
         let message = (error as? RouterError)?.errorDescription ?? error.localizedDescription
         lastError = message
+        consecutiveFailures += 1
 
         // Keep the last good reading on screen; only fall back to an empty
         // offline snapshot when we never managed to load anything.
@@ -549,6 +553,9 @@ final class DashboardModel: ObservableObject {
     // MARK: - Derived display state
 
     var menuBarTitle: String {
+        // The menu bar is the only surface left when the widget is closed, so
+        // it must not keep showing the last rates as if they were current.
+        if isUnreachable { return "⚠ router down" }
         guard let wan = snapshot.primaryWAN else { return "—" }
         return "\(Formatting.compactBitsPerSecond(wan.rxBitsPerSecond))"
             + " / \(Formatting.compactBitsPerSecond(wan.txBitsPerSecond))"
@@ -559,6 +566,20 @@ final class DashboardModel: ObservableObject {
         guard let lastUpdate else { return "Connecting to \(config.host)…" }
         return "Updated \(Formatting.age(of: lastUpdate))"
     }
+
+    /// Reachability lives in MikroTikKit so it can be tested; this just
+    /// feeds it the current counters.
+    var reachability: ReachabilityState {
+        ReachabilityState(
+            consecutiveFailures: consecutiveFailures,
+            lastUpdate: lastUpdate,
+            hasInterfaces: !snapshot.interfaces.isEmpty
+        )
+    }
+
+    var isUnreachable: Bool { reachability.isUnreachable }
+    var silentFor: TimeInterval? { reachability.silentFor() }
+    var isShowingStaleData: Bool { reachability.isShowingStaleData }
 
     var isHealthy: Bool { lastError == nil && lastUpdate != nil }
 

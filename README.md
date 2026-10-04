@@ -48,6 +48,10 @@ Built for dual-WAN setups, works fine with one.
 - **Per-client route pinning** from that same list: send a device out one
   named uplink or leave it on the load balancer. Optional — see
   [docs/route-pinning.md](docs/route-pinning.md).
+- **An unresponsive router is unmissable.** A pulsing banner names the
+  condition, says how long it has been silent, and dims the last-known
+  readings so they cannot be mistaken for live ones. The menu bar says
+  "router down" rather than showing stale rates.
 - **A WidgetKit widget** in Notification Centre — small, medium and large.
 - **No third-party dependencies.** URLSession and SwiftUI only.
 
@@ -57,7 +61,10 @@ Built for dual-WAN setups, works fine with one.
 - A MikroTik router with the REST API reachable — RouterOS 7.x, `/ip service`
   with `www` (or `www-ssl`) enabled
 - Xcode, or just the Command Line Tools (`xcode-select --install`) — the build
-  script produces the widget extension without a full Xcode install
+  script produces the widget extension without a full Xcode install.
+  On macOS 27 the 27.0 SDK makes SwiftUI's `@State` macro-backed and the
+  `SwiftUIMacros` plugin ships only with full Xcode, so `build-app.sh` pins
+  `SDKROOT` to a 26.x SDK when one is present and no Xcode is installed.
 
 ## Install
 
@@ -183,7 +190,7 @@ computation are all covered.
 swift run MikroTikKitTests
 ```
 
-88 tests, 289 assertions, no XCTest dependency — the suite is a plain
+94 tests, 303 assertions, no XCTest dependency — the suite is a plain
 executable so it runs on a Command Line Tools toolchain with no Xcode.
 
 ## Caveats

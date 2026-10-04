@@ -13,8 +13,27 @@ struct DesktopWidgetView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
+
+            if model.isUnreachable {
+                UnreachableBanner(compact: true)
+            }
+
             Divider().overlay(Theme.border)
             interfaces
+                // Last-known numbers must not look current.
+                .opacity(model.isShowingStaleData ? 0.45 : 1)
+                .overlay(alignment: .top) {
+                    if model.isShowingStaleData {
+                        Text("LAST KNOWN VALUES")
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundStyle(Theme.danger)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(Theme.background.opacity(0.9))
+                            .clipShape(Capsule())
+                            .padding(.top, 2)
+                    }
+                }
             Divider().overlay(Theme.border)
             footer
         }
@@ -48,6 +67,7 @@ struct DesktopWidgetView: View {
                 .frame(width: 7, height: 7)
 
             Text(model.config.host)
+                .strikethrough(model.isUnreachable, color: Theme.danger)
                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.textPrimary)
 
